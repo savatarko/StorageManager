@@ -27,7 +27,7 @@ public class Configuration {
     @Override
     public String toString() {
         return  "maxsize=" + maxsize +
-                "\n forbidden=" + forbidden +
-                "\n maxcount=" + maxcount;
+                "\nforbidden=" + forbidden +
+                "\nmaxcount=" + maxcount;
     }
 }
