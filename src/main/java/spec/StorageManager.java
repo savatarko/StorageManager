@@ -1,8 +1,8 @@
 package spec;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public abstract class StorageManager {
 
@@ -12,6 +12,8 @@ public abstract class StorageManager {
     protected String storageLocation = new String("");
 
     protected Configuration defaultconfig = new Configuration(Long.MAX_VALUE, new ArrayList<>(), 100);
+
+    protected Configuration currentconfig;
     /**
      *
      * @return 0
@@ -34,6 +36,9 @@ public abstract class StorageManager {
      * @param path path of the stoage
      */
     public abstract void CreateStorage(Configuration configuration, String path);
+
+
+    public abstract void LoadStorage(String path);
 
     /**
      * Creates a directory on the given path. Path is given locally from the root directory. You can write the name of the directory as the
@@ -87,21 +92,78 @@ public abstract class StorageManager {
 
     public abstract List<MyFile> GetFilesType(String path, String extension);
 
-    public abstract List<MyFile> GetFilesContaining(String path, String name);
+    public abstract List<MyFile> GetFilesNamed(String path, String name);
 
-    public abstract List<MyFile> GetFilesSorted(String path, String sort);
+    public abstract boolean IsContained(String path, List<String> filenames);
 
-    public abstract List<MyFile> GetFilesFrom(String path, String filter);
+    public abstract String Locate(String name);
 
+    public abstract List<MyFile> GetFilesTime(String path, String begintime, String endtime);
 
-    public void setStorageLocation(String storageLocation) {
-        this.storageLocation = storageLocation;
+    public List<MyFile> GetFilesTime(String path, String begintime)
+    {
+        return GetFilesTime(path, begintime, LocalDateTime.now().toString());
     }
 
-    public StorageManager() {
+    /**
+     * Sort the list of files with arguments
+     * regex for sorting:
+     * name-> by file name
+     * creation -> by file creation
+     * modification -> by file modification
+     * use asc for ascending or desc for descending, if you don't define the order, the default order is ascending
+     * if you want to use multiple parameters for sorting (in case of a equals), split them with a coma
+     * @param files list of files to be sorted
+     * @param sort parameters for sorting
+     * @return sorted list of files
+     */
+    public List<MyFile> SortResult(List<MyFile> files, String sort)
+    {
+        return null;
     }
 
-    public StorageManager(String storageLocation) {
-        this.storageLocation = storageLocation;
+    /**
+     * Filter the result to contain only info you need about the file
+     * Possible parameters:
+     * name -> name of the file
+     * path -> path to the file
+     * createtime -> when was the file created
+     * type -> type of file (extension)
+     * modtime -> when was the file last modified
+     * size -> size of the file
+     * Split parameters with a coma
+     * @param files list of files
+     * @param filter parameters that you need
+     * @return list that contains strings that have all the info requested
+     */
+    public List<String> FilterResult(List<MyFile> files, String filter)
+    {
+        List<String> output = new ArrayList<>();
+        Map<String, List<String>> result = new HashMap<>();
+        for(var i : files)
+        {
+            result.get("name").add(i.getFile().getName());
+            result.get("path").add(i.getFile().getPath());
+            result.get("createtime").add(i.getCreatetime());
+            result.get("type").add(i.getType());
+            result.get("modtime").add(i.getModtime());
+            result.get("size").add(i.getSize());
+        }
+
+        String[] split = filter.split(",");
+        for(int i = 0;i<files.size();i++)
+        {
+            String temp = "";
+            for(var j : split)
+            {
+                temp = temp.concat(result.get(j).get(i) + " ");
+            }
+            if(temp.length() > 0)
+            {
+                temp = temp.substring(0, temp.length() - 1);
+                output.add(temp);
+            }
+        }
+        return output;
     }
 }
