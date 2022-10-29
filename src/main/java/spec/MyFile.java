@@ -1,10 +1,16 @@
 package spec;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributes;
+
+@Getter
+@Setter
 
 public class MyFile {
     private File file;
@@ -30,8 +36,6 @@ public class MyFile {
             modtime = "-1";
             size = "-1";
         }
-
-
     }
 
     public MyFile(File file, String type, String createtime, String modtime, String size) {
