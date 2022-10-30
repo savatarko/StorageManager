@@ -14,12 +14,6 @@ public abstract class StorageManager {
     protected Configuration defaultconfig = new Configuration(Long.MAX_VALUE, new ArrayList<>(), 100);
 
     protected Configuration currentconfig;
-    /**
-     *
-     * @return 0
-     */
-
-    //fje vezane za osnovne operacije
 
     /**
      * Initializes the storage on given path with default parameters
@@ -37,7 +31,10 @@ public abstract class StorageManager {
      */
     public abstract void CreateStorage(Configuration configuration, String path);
 
-
+    /**
+     * Loads already initialized storage with the given path
+     * @param path path to the storage
+     */
     public abstract void LoadStorage(String path);
 
     /**
@@ -84,22 +81,74 @@ public abstract class StorageManager {
     public abstract void Rename(String path, String newName);
     //fje vezane za pretrazivanje
 
+    /**
+     * Returns all files in the given directory
+     * @param path path to the directory
+     * @return all files in the directory
+     */
     public abstract List<MyFile> GetFiles(String path);
 
+    /**
+     * Returns all files from subdirectories in a directory
+     * @param path path to the directory
+     * @return all files from subdirectories
+     */
     public abstract List<MyFile> GetAllFiles(String path);
 
+    /**
+     * Get all files from the given directory and all subdirectories
+     * @param path to the directories
+     * @return all files from the directory
+     */
     public abstract List<MyFile> GetAllSubFiles(String path);
 
+    /**
+     * Get only files with a certain extension
+     * Split the extensions with a coma
+     * @param path path to the directory
+     * @param extension extensions to search
+     * @return all files in the directory with the given extensions
+     */
     public abstract List<MyFile> GetFilesType(String path, String extension);
 
+    /**
+     * Returns all files containing the given name
+     * @param path path to the directory
+     * @param name name to search
+     * @return all files that contain name
+     */
     public abstract List<MyFile> GetFilesNamed(String path, String name);
 
+    /**
+     * Returns whether or not the directory contains a file with a given name (or multiple names)
+     * @param path path to the directory
+     * @param filenames names to search
+     * @return true if names are contained, false if not
+     */
     public abstract boolean IsContained(String path, List<String> filenames);
 
+    /**
+     * Get the folder name containing a certain file nime
+     * @param name name of the file
+     * @return name of the folder, null if not found
+     */
     public abstract String Locate(String name);
 
+    /**
+     * Get files that have been created or modified in the given time frame
+     * @param path path to the directory
+     * @param begintime begin search time
+     * @param endtime end search time
+     * @return all files that fit the criteria
+     */
     public abstract List<MyFile> GetFilesTime(String path, String begintime, String endtime);
 
+    /**
+     * Get files that have been created or modified after given date
+     * @param path path to the directory
+     * @param begintime begin search time
+     * @return all files that fit the criteria
+     */
     public List<MyFile> GetFilesTime(String path, String begintime)
     {
         return GetFilesTime(path, begintime, LocalDateTime.now().toString());
