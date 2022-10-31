@@ -38,21 +38,22 @@ public abstract class StorageManager {
     public abstract void LoadStorage(String path);
 
     /**
-     * Creates a directory on the given path. Path is given locally from the root directory. You can write the name of the directory as the
-     * command, or you can write a bash-like command to make 1 or multiple directories. The method will take your arg as a command if you start with a $
-     * Example: CreateDirectory(path, "dir") will make directory "dir" on the given path, meanwhile CreateDirectory(path, "$mkdir s{1..10}") will make 10
+     * Creates a directory on the given path. Path is given locally from the root directory.
      * @param path local path from root where new directory is being made
-     * @param command name or command to create new directory
+     * @param name name of the new directory
      */
-    public abstract void CreateDirectory(String path, String command);
+    public abstract void CreateDirectory(String path, String name);
 
+    public void CreateDirectoryBash(String path, String command)
+    {
+
+    }
     /**
      * Stores the file in the given path
      * @param path local path from root
      * @param file file that is stored
      */
     public abstract void StoreFile(String path, MyFile file); //za ovo nisam siguran jos iskr, jel cemo da koristimo file ili nes drugo mozda, ostavi ovo za kasnije
-
     /**
      * Deletes a file from the storage that is in the given path
      * @param path local path from root
