@@ -2,6 +2,7 @@ package spec;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public abstract class StorageManager {
@@ -152,7 +153,7 @@ public abstract class StorageManager {
      */
     public List<MyFile> GetFilesTime(String path, String begintime)
     {
-        return GetFilesTime(path, begintime, LocalDateTime.now().toString());
+        return GetFilesTime(path, begintime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.mm.yyyy HH:mm:ss")));
     }
 
     /**
