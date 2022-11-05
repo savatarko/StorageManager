@@ -16,6 +16,10 @@ public abstract class StorageManager {
 
     protected Configuration currentconfig;
 
+    protected Map<String, Integer> pathlimit = new HashMap<>();
+
+    protected Long maxsize;
+
     /**
      * Initializes the storage on given path with default parameters
      * @param path path of the storage
