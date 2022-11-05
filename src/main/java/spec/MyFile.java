@@ -65,6 +65,11 @@ public class MyFile {
         this.modtime = modtime;
         this.size = size;
     }
+
+    @Override
+    public String toString() {
+        return file.getName();
+    }
 }
 
 
