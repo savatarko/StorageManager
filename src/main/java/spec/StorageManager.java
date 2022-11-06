@@ -141,23 +141,43 @@ public abstract class StorageManager {
     public abstract String Locate(String name);
 
     /**
-     * Get files that have been created or modified in the given time frame
+     * Get files that have been created in the given time frame
      * @param path path to the directory
      * @param begintime begin search time
      * @param endtime end search time
      * @return all files that fit the criteria
      */
-    public abstract List<MyFile> GetFilesTime(String path, String begintime, String endtime);
+    public abstract List<MyFile> GetFilesTimeCreated(String path, String begintime, String endtime);
 
     /**
-     * Get files that have been created or modified after given date
+     * Get files that have been created after given date
      * @param path path to the directory
      * @param begintime begin search time
      * @return all files that fit the criteria
      */
-    public List<MyFile> GetFilesTime(String path, String begintime)
+    public List<MyFile> GetFilesTimeCreated(String path, String begintime)
     {
-        return GetFilesTime(path, begintime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.mm.yyyy HH:mm:ss")));
+        return GetFilesTimeCreated(path, begintime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+    }
+
+    /**
+     * Get files that have been modified in the given time frame
+     * @param path path to the directory
+     * @param begintime begin search time
+     * @param endtime end search time
+     * @return all files that fit the criteria
+     */
+    public abstract List<MyFile> GetFilesTimeModified(String path, String begintime, String endtime);
+
+    /**
+     * Get files that have been modified after given date
+     * @param path path to the directory
+     * @param begintime begin search time
+     * @return all files that fit the criteria
+     */
+    public List<MyFile> GetFilesTimeModified(String path, String begintime)
+    {
+        return GetFilesTimeCreated(path, begintime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
     }
 
     /**
