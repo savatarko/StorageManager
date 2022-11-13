@@ -111,19 +111,17 @@ public abstract class StorageManager {
     /**
      * Get only files with a certain extension
      * Split the extensions with a coma
-     * @param path path to the directory
      * @param extension extensions to search
      * @return all files in the directory with the given extensions
      */
-    public abstract List<MyFile> GetFilesType(String path, String extension);
+    public abstract List<MyFile> GetFilesType(String extension);
 
     /**
      * Returns all files containing the given name
-     * @param path path to the directory
      * @param name name to search
      * @return all files that contain name
      */
-    public abstract List<MyFile> GetFilesNamed(String path, String name);
+    public abstract List<MyFile> GetFilesNamed(String name);
 
     /**
      * Returns whether or not the directory contains a file with a given name (or multiple names)
