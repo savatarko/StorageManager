@@ -30,7 +30,7 @@ public class Configuration {
     public String toString() {
         String map = "";
         for(var i : pathlimit.keySet()){
-            map = map.concat("\n" + i + " " + pathlimit.get(i));
+            map = map.concat("\n" + i + "|" + pathlimit.get(i));
         }
         return  "maxsize=" + maxsize +
                 "\nforbidden=" + forbidden +
