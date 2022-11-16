@@ -12,11 +12,9 @@ public abstract class StorageManager {
 
     protected String storageLocation = new String("");
 
-    protected Configuration defaultconfig = new Configuration(Long.MAX_VALUE, new ArrayList<>(), 100);
+    protected Configuration defaultconfig = new Configuration(Long.MAX_VALUE, new ArrayList<>());
 
     protected Configuration currentconfig;
-
-    protected Map<String, Integer> pathlimit = new HashMap<>();
 
     protected Long maxsize;
 
@@ -48,6 +46,14 @@ public abstract class StorageManager {
      * @param name name of the new directory
      */
     public abstract void CreateDirectory(String path, String name);
+
+    /**
+     * Creates a directory on the given path with a constraint of max files in the directory. Path is given locally from the root directory.
+     * @param path local path from root where new directory is being made
+     * @param name name of the new directory
+     * @param filelimit max number of files in the directory
+     */
+    public abstract void CreateDirectory(String path, String name, int filelimit);
 
     public void CreateDirectoryBash(String path, String command)
     {
