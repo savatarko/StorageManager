@@ -1,6 +1,9 @@
 package local;
 
+import com.sun.source.tree.NewArrayTree;
 import exceptions.FileNotFoundException;
+import exceptions.StorageCountLimitException;
+import org.apache.commons.io.FileUtils;
 import spec.Configuration;
 import spec.MyFile;
 import spec.StorageManager;
@@ -11,6 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Array;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,13 +27,14 @@ public class LocalDrive extends StorageManager
 
     public static void main(String[] args) {
         LocalDrive ld=new LocalDrive();
-        Configuration config=new Configuration(123,"txt",50);
-        ld.CreateStorage(config,"C:/Users/user/Desktop/asdefgh/");
-        //System.out.println(ld.storageLocation);
+        Configuration config=new Configuration(15000,"txt",50);
+        ld.CreateStorage(config,"C:/Users/user/Desktop/asdefghh/");
+    //    System.out.println(ld.storageLocation);
         ld.CreateDirectory("","leale");
-        ld.CreateDirectory("","leale2");
-        System.out.println(ld.Locate("doc.docx"));
+        ld.CreateDirectory("leale/","leale2");
 
+
+        MyFile mf=new MyFile(new File("C:/Users/user/Desktop/skcp.docx/"));
 
     }
 
@@ -36,20 +44,23 @@ public class LocalDrive extends StorageManager
 
         this.storageLocation=path;
         this.currentconfig=configuration;
+        this.maxsize= currentconfig.getMaxsize();
 
         try{
-            File f=new File(path);
-            f.mkdir();
-            java.io.File file = new java.io.File(path + "/config.txt");
-            FileWriter fw = new FileWriter(file);
-            fw.write(configuration.toString());
-            fw.close();
+            if(!new File(path).exists()) {
+                File f = new File(path);
+                f.mkdir();
+                java.io.File file = new java.io.File(path + "/config.txt");
+                FileWriter fw = new FileWriter(file);
+                fw.write(configuration.toString());
+                fw.close();
+            } else {
+                System.out.println("This storage already exists");
+            }
         }
         catch(Exception e){
             e.printStackTrace();
         }
-
-
 
     }
 
@@ -59,12 +70,16 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
+
     public void CreateDirectory(String path, String name) {
        try {
 
            File f=new File(storageLocation + path);
            if(!f.exists()){
                throw new FileNotFoundException(storageLocation + path);
+           } else if(pathlimit.containsKey(storageLocation + path) &&
+                   pathlimit.get(storageLocation + path)<new File(storageLocation + path).listFiles().length ){
+               throw new StorageCountLimitException(storageLocation + path);
            }
 
            f=new File(storageLocation + path + name);
@@ -78,9 +93,23 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
+    //uradi i dodaj config
     public void StoreFile(String path, MyFile file) {
       try {
+           File f=new File(storageLocation + path + file.getFile().getName());
 
+       if(
+               (!this.currentconfig.getForbidden().contains(getExtension(file.getFile()))) &&
+                       ((!pathlimit.containsKey(storageLocation + path) ||
+                               pathlimit.get(storageLocation + path)<new File(storageLocation + path).listFiles().length)) &&
+                       (FileUtils.sizeOfDirectory(new File(this.storageLocation))+file.getFile().length())<this.currentconfig.getMaxsize()
+       )
+          {
+              Files.copy(file.getFile().toPath(), f.toPath());
+          }
+       else{
+           System.out.println("ne moze");
+       }
 
 
       } catch (Exception e){
@@ -90,14 +119,15 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
+
     public void DeleteFromStorage(String path) {
 
 
        try{
-           File f=new File(path);
+           File f=new File(storageLocation + path);
 
           if(!f.exists()){
-              throw new FileNotFoundException(path);
+              throw new FileNotFoundException(storageLocation + path);
           }
 
           f.delete();
@@ -110,20 +140,27 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
+
     public void MoveFile(String oldPath, String newPath) {
        try{
-           File f=new File(oldPath);
-           f.renameTo(new File(newPath));
+           File f=new File(storageLocation + oldPath);
+           if(!pathlimit.containsKey(storageLocation + newPath) ||
+                   pathlimit.get(storageLocation + newPath)<new File(storageLocation + newPath).listFiles().length){
+               throw new StorageCountLimitException(storageLocation + newPath);
+           }
+           f.renameTo(new File(storageLocation + newPath));
        } catch (Exception e) {
            e.printStackTrace();
        }
     }
 
     @Override
+
     public void DownloadFile(String sourcePath, String targetPath) {
         try{
-            File f=new File(sourcePath);
-            f.renameTo(new File(targetPath));
+            File source=new File(storageLocation + sourcePath);
+            File target=new File(targetPath + source.getName());
+            Files.copy(source.toPath(),target.toPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,7 +169,7 @@ public class LocalDrive extends StorageManager
     @Override
     public void Rename(String path, String newName) {
 
-        File f=new File(path);
+        File f=new File(storageLocation + path);
         f.renameTo(new File(f.getParent() + "/" + newName));
 
 
@@ -142,7 +179,7 @@ public class LocalDrive extends StorageManager
     public List<MyFile> GetFiles(String path) {
         List<MyFile> out=new ArrayList<>();
         try {
-            File f=new File(path);
+            File f=new File(storageLocation + path);
             List<File> files= List.of(f.listFiles());
 
             for(File i: files){
@@ -162,33 +199,21 @@ public class LocalDrive extends StorageManager
 
     @Override
     public List<MyFile> GetAllFiles(String path) {
-        return null;
-    }
-
-    @Override
-    public List<MyFile> GetAllSubFiles(String path) {
-        return null;
-    }
-
-    @Override
-    public List<MyFile> GetFilesType(String path, String extension) {
-
         List<MyFile> out=new ArrayList<>();
-        List<String> ext=new ArrayList<>();
-        ext.addAll(Arrays.stream(extension.split(",")).toList());
         try {
-            File f=new File(path);
+            File f=new File(storageLocation + path);
             List<File> files= List.of(f.listFiles());
 
             for(File i: files){
-                String[] s;
-                if(!i.isDirectory()) {
-                    s = i.getName().split("\\.");
-                    if(ext.contains(s[1])){
-                        MyFile myf=new MyFile(i);
+                if(i.isDirectory()){
+                    List<File> subfiles= List.of(i.listFiles());
+
+                    for(File j:subfiles){
+                        MyFile myf=new MyFile(j);
                         out.add(myf);
                     }
                 }
+
 
             }
 
@@ -203,17 +228,26 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
-    public List<MyFile> GetFilesNamed(String path, String name) {
+    public List<MyFile> GetAllSubFiles(String path) {
         List<MyFile> out=new ArrayList<>();
         try {
-            File f=new File(path);
+            File f=new File(storageLocation + path);
             List<File> files= List.of(f.listFiles());
 
             for(File i: files){
-                MyFile myf=new MyFile(i);
+                if(i.isDirectory()){
+                    List<File> subfiles= List.of(i.listFiles());
 
-                if(myf.toString().contains(name))
-                   out.add(myf);
+                    for(File j:subfiles){
+                        MyFile myf=new MyFile(j);
+                        out.add(myf);
+                    }
+                }
+
+                else{
+                    MyFile myf=new MyFile(i);
+                    out.add(myf);
+                }
             }
 
 
@@ -222,6 +256,58 @@ public class LocalDrive extends StorageManager
             e.printStackTrace();
         }
 
+
+        return out;
+    }
+
+    @Override
+    public List<MyFile> GetFilesType(String extension) {
+
+        List<MyFile> out=new ArrayList<>();
+        List<String> ext=new ArrayList<>();
+        ext.addAll(Arrays.stream(extension.split(",")).toList());
+        try {
+            File f=new File(storageLocation);
+            List<File> files=new ArrayList<>();
+            files=ListAllFiles(files,f);
+
+            for(File i: files){
+
+                if(!i.isDirectory()) {
+
+                    if(ext.contains(getExtension(i))){
+                        MyFile myf=new MyFile(i);
+                        out.add(myf);
+                    }
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return out;
+    }
+
+    @Override
+    public List<MyFile> GetFilesNamed(String name) {
+       List<MyFile> out=new ArrayList<>();
+        try {
+            File f=new File(storageLocation);
+            List<File> files=new ArrayList<>();
+            files=ListAllFiles(files,f);
+
+            for(File i: files){
+                MyFile myf=new MyFile(i);
+
+                if(myf.toString().contains(name))
+                   out.add(myf);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return out;
     }
@@ -232,7 +318,7 @@ public class LocalDrive extends StorageManager
         int rez=0,j=filenames.size();
 
         try {
-            File f=new File(path);
+            File f=new File(storageLocation + path);
             List<File> files= List.of(f.listFiles());
 
             for(File i: files){
@@ -241,12 +327,9 @@ public class LocalDrive extends StorageManager
 
             }
 
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         return rez==j;
     }
@@ -266,6 +349,8 @@ public class LocalDrive extends StorageManager
         return out;
     }
 
+
+
     public List<File> ListAllFiles(List<File> files,File root){
           List<File> subFiles=List.of(root.listFiles());
 
@@ -284,9 +369,70 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
-    public List<MyFile> GetFilesTime(String path, String begintime, String endtime) {
-        return null;
+    //uradi
+    public List<MyFile> GetFilesTimeCreated(String path, String begintime, String endtime) {
+        List<MyFile> out=new ArrayList<>();
+        DateTimeFormatter format=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'");
+        LocalDateTime begin=LocalDateTime.parse(begintime,format);
+        LocalDateTime end=LocalDateTime.parse(endtime,format);
+
+        try {
+            File f=new File(storageLocation);
+            List<File> files= List.of(f.listFiles());
+
+            for(File i: files){
+                MyFile myf=new MyFile(i);
+                LocalDateTime fileTime=LocalDateTime.parse(myf.getModtime(),format);
+                if(fileTime.isAfter(begin) && fileTime.isBefore(end))
+                    out.add(myf);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return out;
     }
+
+    @Override
+    //uradi
+    public List<MyFile> GetFilesTimeModified(String path, String begintime, String endtime) {
+        List<MyFile> out=new ArrayList<>();
+        DateTimeFormatter format=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'");
+        LocalDateTime begin=LocalDateTime.parse(begintime,format);
+        LocalDateTime end=LocalDateTime.parse(endtime,format);
+
+        try {
+            File f=new File(storageLocation);
+            List<File> files= List.of(f.listFiles());
+
+            for(File i: files){
+                MyFile myf=new MyFile(i);
+                LocalDateTime fileTime=LocalDateTime.parse(myf.getModtime(),format);
+                if(fileTime.isAfter(begin) && fileTime.isBefore(end))
+                    out.add(myf);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return out;
+    }
+
+
+    private static String getExtension(File f){
+       if(f.exists() && !f.isDirectory()) {
+           String[] s = f.getName().split("\\.");
+
+           return s[1];
+       }
+
+       return null;
+    }
+
+
+
 
 
 }
