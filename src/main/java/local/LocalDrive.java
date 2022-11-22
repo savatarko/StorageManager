@@ -28,13 +28,16 @@ public class LocalDrive extends StorageManager
     public static void main(String[] args) {
         LocalDrive ld=new LocalDrive();
         Configuration config=new Configuration(15000,"txt");
+        config.getPathlimit().put("leale",5);
+        config.getPathlimit().put("leale/leale2",7);
         ld.CreateStorage(config,"C:/Users/user/Desktop/asdefghh/");
     //    System.out.println(ld.storageLocation);
         ld.CreateDirectory("","leale");
         ld.CreateDirectory("leale/","leale2");
+        ld.CreateDirectory("","leale3",10);
 
 
-        MyFile mf=new MyFile(new File("C:/Users/user/Desktop/skcp.docx/"));
+
 
     }
 
@@ -107,6 +110,10 @@ public class LocalDrive extends StorageManager
             f=new File(storageLocation + path + name);
             f.mkdir();
             currentconfig.getPathlimit().put(path,filelimit);
+            File config=new File(storageLocation + configname);
+            FileWriter fw=new FileWriter(config,true);
+            fw.write("\n" + path + name + "|" + filelimit);
+            fw.close();
 
         } catch(Exception e){
             e.printStackTrace();
