@@ -9,6 +9,10 @@ public abstract class StorageManager {
 
     protected static StorageManager sm;
 
+    /**
+     * Get the instance of storage manager to use
+     * @return instance of storage manager
+     */
     public static StorageManager getSm() {
         return sm;
     }
