@@ -27,14 +27,17 @@ public class LocalDrive extends StorageManager
 
     public static void main(String[] args) {
         LocalDrive ld=new LocalDrive();
-        Configuration config=new Configuration(15000,"txt",50);
+        Configuration config=new Configuration(15000,"txt");
+        config.getPathlimit().put("leale",5);
+        config.getPathlimit().put("leale/leale2",7);
         ld.CreateStorage(config,"C:/Users/user/Desktop/asdefghh/");
     //    System.out.println(ld.storageLocation);
         ld.CreateDirectory("","leale");
         ld.CreateDirectory("leale/","leale2");
+        ld.CreateDirectory("","leale3",10);
 
 
-        MyFile mf=new MyFile(new File("C:/Users/user/Desktop/skcp.docx/"));
+
 
     }
 
@@ -77,8 +80,8 @@ public class LocalDrive extends StorageManager
            File f=new File(storageLocation + path);
            if(!f.exists()){
                throw new FileNotFoundException(storageLocation + path);
-           } else if(pathlimit.containsKey(storageLocation + path) &&
-                   pathlimit.get(storageLocation + path)<new File(storageLocation + path).listFiles().length ){
+           } else if(currentconfig.getPathlimit().containsKey(storageLocation + path) &&
+                   currentconfig.getPathlimit().get(storageLocation + path)<new File(storageLocation + path).listFiles().length ){
                throw new StorageCountLimitException(storageLocation + path);
            }
 
@@ -93,6 +96,31 @@ public class LocalDrive extends StorageManager
     }
 
     @Override
+    public void CreateDirectory(String path, String name, int filelimit) {
+        try {
+
+            File f=new File(storageLocation + path);
+            if(!f.exists()){
+                throw new FileNotFoundException(storageLocation + path);
+            } else if(currentconfig.getPathlimit().containsKey(storageLocation + path) &&
+                    currentconfig.getPathlimit().get(storageLocation + path)<new File(storageLocation + path).listFiles().length ){
+                throw new StorageCountLimitException(storageLocation + path);
+            }
+
+            f=new File(storageLocation + path + name);
+            f.mkdir();
+            currentconfig.getPathlimit().put(path,filelimit);
+            File config=new File(storageLocation + configname);
+            FileWriter fw=new FileWriter(config,true);
+            fw.write("\n" + path + name + "|" + filelimit);
+            fw.close();
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     //uradi i dodaj config
     public void StoreFile(String path, MyFile file) {
       try {
@@ -100,8 +128,8 @@ public class LocalDrive extends StorageManager
 
        if(
                (!this.currentconfig.getForbidden().contains(getExtension(file.getFile()))) &&
-                       ((!pathlimit.containsKey(storageLocation + path) ||
-                               pathlimit.get(storageLocation + path)<new File(storageLocation + path).listFiles().length)) &&
+                       ((!currentconfig.getPathlimit().containsKey(storageLocation + path) ||
+                               currentconfig.getPathlimit().get(storageLocation + path)<new File(storageLocation + path).listFiles().length)) &&
                        (FileUtils.sizeOfDirectory(new File(this.storageLocation))+file.getFile().length())<this.currentconfig.getMaxsize()
        )
           {
@@ -144,8 +172,8 @@ public class LocalDrive extends StorageManager
     public void MoveFile(String oldPath, String newPath) {
        try{
            File f=new File(storageLocation + oldPath);
-           if(!pathlimit.containsKey(storageLocation + newPath) ||
-                   pathlimit.get(storageLocation + newPath)<new File(storageLocation + newPath).listFiles().length){
+           if(!currentconfig.getPathlimit().containsKey(storageLocation + newPath) ||
+                   currentconfig.getPathlimit().get(storageLocation + newPath)<new File(storageLocation + newPath).listFiles().length){
                throw new StorageCountLimitException(storageLocation + newPath);
            }
            f.renameTo(new File(storageLocation + newPath));
