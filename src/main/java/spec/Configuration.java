@@ -29,8 +29,8 @@ public class Configuration {
     @Override
     public String toString() {
         String map = "";
-        for(var i : pathlimit.keySet()){
-            map = map.concat("\n" + i + "|" + pathlimit.get(i));
+        for(var i : pathlimit.entrySet()){
+            map = map.concat("\n" + i.getKey() + "|" + i.getValue());
         }
         return  "maxsize=" + maxsize +
                 "\nforbidden=" + forbidden +

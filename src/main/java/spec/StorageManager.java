@@ -7,6 +7,11 @@ import java.util.*;
 
 public abstract class StorageManager {
 
+    protected static StorageManager sm;
+
+    public static StorageManager getSm() {
+        return sm;
+    }
 
     protected static final String configname = new String("config.txt");
 
@@ -55,9 +60,63 @@ public abstract class StorageManager {
      */
     public abstract void CreateDirectory(String path, String name, int filelimit);
 
+    /**
+     * Creates multiple directories using the given bash command
+     * @param path
+     * @param command
+     */
     public void CreateDirectoryBash(String path, String command)
     {
+        if(command == null || !command.contains("{") || command.indexOf('{')>=command.indexOf('}')) {
+            List<String> rez = new ArrayList<>();
+            rez.add(command);
+            //return rez;
+            CreateDirectory(path, command);
+        }else {
+            String pocetak = command.substring(0,command.indexOf('{'));
+            String kraj = command.substring(command.indexOf('}')+1,command.length());
+            String uZagradi = command.substring(command.indexOf('{')+1,command.indexOf('}'));
+            if(!uZagradi.contains("-") && !uZagradi.contains(",")) {
+                CreateDirectory(path, command);
+            }else {
+                List<String> retVal = new ArrayList<>();
+                if(uZagradi.contains(",")) {
+                    String[] podeljeno = uZagradi.split(",");
+                    for(String str:podeljeno) {
+                        retVal.add(pocetak+str+kraj);
+                    }
+                    //return retVal;
+                    for(var i : retVal)
+                    {
+                        CreateDirectory(path, i);
+                    }
+                }else {
+                    String[] podeljeno = uZagradi.split("-");
+                    try {
+                        int prviBroj = Integer.parseInt(podeljeno[0]);
+                        int drugiBroj = Integer.parseInt(podeljeno[1]);
+                        if(prviBroj<=drugiBroj) {
+                            for(int i=prviBroj;i<=drugiBroj;i++) {
+                                retVal.add(pocetak+i+kraj);
+                            }
+                        }else {
+                            for(int i=prviBroj;i>=drugiBroj;i--) {
+                                retVal.add(pocetak+i+kraj);
+                            }
+                        }
+                        //return retVal;
+                        for(var i : retVal)
+                        {
+                            CreateDirectory(path, i);
+                        }
+                    }catch(NumberFormatException e) {
+                        //return List.of(command);
+                        CreateDirectory(path, command);
+                    }
 
+                }
+            }
+        }
     }
     /**
      * Stores the file in the given path
