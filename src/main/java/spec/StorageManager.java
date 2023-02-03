@@ -1,6 +1,8 @@
 package spec;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -54,7 +56,7 @@ public abstract class StorageManager {
      * @param path local path from root where new directory is being made
      * @param name name of the new directory
      */
-    public abstract void CreateDirectory(String path, String name);
+    public abstract void CreateDirectory(String path, String name) throws IOException;
 
     /**
      * Creates a directory on the given path with a constraint of max files in the directory. Path is given locally from the root directory.
@@ -62,14 +64,14 @@ public abstract class StorageManager {
      * @param name name of the new directory
      * @param filelimit max number of files in the directory
      */
-    public abstract void CreateDirectory(String path, String name, int filelimit);
+    public abstract void CreateDirectory(String path, String name, int filelimit) throws IOException;
 
     /**
      * Creates multiple directories using the given bash command
      * @param path
      * @param command
      */
-    public void CreateDirectoryBash(String path, String command)
+    public void CreateDirectoryBash(String path, String command) throws IOException
     {
         if(command == null || !command.contains("{") || command.indexOf('{')>=command.indexOf('}')) {
             List<String> rez = new ArrayList<>();
