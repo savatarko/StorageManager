@@ -129,19 +129,19 @@ public abstract class StorageManager {
      * @param path local path from root
      * @param file file that is stored
      */
-    public abstract void StoreFile(String path, MyFile file); //za ovo nisam siguran jos iskr, jel cemo da koristimo file ili nes drugo mozda, ostavi ovo za kasnije
+    public abstract void StoreFile(String path, MyFile file) throws IOException; //za ovo nisam siguran jos iskr, jel cemo da koristimo file ili nes drugo mozda, ostavi ovo za kasnije
     /**
      * Deletes a file from the storage that is in the given path
      * @param path local path from root
      */
-    public abstract void DeleteFromStorage(String path);
+    public abstract void DeleteFromStorage(String path) throws IOException;
 
     /**
      * Moves a file from a path to a new one
      * @param oldPath local path to the file from root
      * @param newPath new path from root
      */
-    public abstract void MoveFile(String oldPath, String newPath);
+    public abstract void MoveFile(String oldPath, String newPath) throws IOException;
 
     /**
      * Download a file from the storage to your drive
